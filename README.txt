@@ -1,17 +1,16 @@
-Bank,phone,email verification - Done
+Bank,phone,email verification 
 
-Edit account details - partial ( need to finish unlink bank accounts -  done) (verify secondary bank account - not done)
+Edit account details
 
-Add to TIJN wallet from Bank account - Done
+Add to TIJN wallet from Bank account 
 
-TIJN account to bank account  - Done
+TIJN account to bank account
 
-Sign in - done
-Log in - done
-Sign out - done
-
+Sign in
+Log in
+Sign out
 Dashboard / Welcome screen - need to format and add more options. 
 
 
-send money , receive money : ?? in progress
+send money , receive money
 
