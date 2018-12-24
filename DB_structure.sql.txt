@@ -1,0 +1,111 @@
+create schema TIJN_Network;
+use TIJN_Network;
+
+-- Structure for table BANK_ACCOUNT
+
+CREATE TABLE BANK_ACCOUNT (
+	BankID int(10) unsigned NOT NULL,
+    BANumber int(10) unsigned NOT NULL,
+	PRIMARY KEY (BankID,BANumber)
+	
+);
+
+-- Structure for table HAS_ADDITIONAL
+
+CREATE TABLE IF NOT EXISTS HAS_ADDITIONAL (
+	SSN varchar(9) NOT NULL,
+	BankID int(10) unsigned NOT NULL,
+    BANumber int(10) unsigned NOT NULL,
+	Verified boolean NOT NULL DEFAULT False,
+	PRIMARY KEY (SSN,BankID,BANumber),
+	CONSTRAINT FK_Bank_Acc FOREIGN KEY (BankID,BANumber) REFERENCES BANK_ACCOUNT (BankID,BANumber) ON DELETE  CASCADE ON UPDATE CASCADE
+);
+
+-- Structure for table USER_ACCOUNT
+
+CREATE TABLE IF NOT EXISTS USER_ACCOUNT (
+	SSN varchar(9) NOT NULL,
+	Name varchar(30) NOT NULL,
+	Balance int(15),
+	BankID int(10) unsigned NOT NULL,
+    BANumber int(10) unsigned NOT NULL,
+	PBAVerified boolean default False,
+    PRIMARY KEY (SSN),
+	CONSTRAINT FK_User_Acc FOREIGN KEY (BankID,BANumber) REFERENCES BANK_ACCOUNT (BankID,BANumber) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+alter table user_account add column PA_Balance float not null ;
+alter table user_account add column Joining_Date timestamp;
+
+alter table user_account modify column balance float default 0;
+
+
+-- Structure for table SEND_TRANSACTION
+
+CREATE TABLE IF NOT EXISTS SEND_TRANSACTION (
+	STid INT(10) NOT NULL,
+	Amount int(10),
+	Date_Time TIMESTAMP not null,
+	MEMO VARCHAR(30),
+	CANCELLED boolean default False,
+	S_SSN varchar(9) not null,
+	Identifier varchar(30) not null,
+	PRIMARY KEY (STid),
+	CONSTRAINT FK_Send_TXN FOREIGN KEY (S_SSN) REFERENCES USER_ACCOUNT (SSN) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+-- Structure for table REQUEST_TRANSACTION
+
+CREATE TABLE IF NOT EXISTS REQUEST_TRANSACTION(
+	RTid INT(10) NOT NULL,
+	Amount int(10),
+	Date_Time TIMESTAMP not null,
+	MEMO VARCHAR(30),
+	R_SSN varchar(9) not null,
+	Identifier varchar(30) not null,
+	PRIMARY KEY (RTid),
+	CONSTRAINT FK_Req_TXN FOREIGN KEY (R_SSN) REFERENCES USER_ACCOUNT (SSN) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE table FROM_USER(
+	RT_id INT(10) not null,
+	E_Identifier varchar(30) not null,
+	Percentage int(3) not null,
+	PRIMARY KEY (RT_id,E_Identifier),
+	CONSTRAINT FK_FROM_ID FOREIGN KEY ( RT_id) REFERENCES REQUEST_TRANSACTION(RTid),
+	CONSTRAINT FK_FROM_Ident FOREIGN KEY (E_Identifier) references ELECTRONIC_ADDRESS(Identifier)
+	);
+	
+CREAte TABLE ELECTRONIC_ADDRESS(
+	id int NOT NULL AUTO_INCREMENT,
+	Identifier varchar(30) not null,
+	EA_SSN varchar(30) not null unique,
+	Type varchar(20) not null default 'email',
+    password varchar(8) not null,
+	Verified boolean default False,
+	PRIMARY KEY (Identifier),
+	CONSTRAINT FK_EA FOREIGN KEY (EA_SSN) references USER_ACCOUNT(SSN)
+	);
+	
+    
+CREATE TABLE LOGIN (
+		 Email_id varchar(30) not NULL,
+         password varchar(8) not null,
+         Primary Key (Email_id),
+         CONSTRAINT FK_LOGIN  foreign key (email_id) references ELECTRONIC_ADDRESS(Identifier) 
+         );
+         
+CREATE TABLE USERS (
+		 id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+		 username varchar(30) not NULL UNIQUE,
+         password varchar(8) not null,
+         SSN int(9) not null UNIQUE,
+         created_at timestamp,
+         Primary Key (username),
+         CONSTRAINT FK_usr_login  foreign key (username) references ELECTRONIC_ADDRESS(Identifier) ,
+         CONSTRAINT FK_usr_UA foreign key(SSN) references USER_ACCOUNT(SSN)
+         );
+         
+         
+    
